@@ -1,4 +1,4 @@
-package connectorname
+package destination
 
 //go:generate paramgen -output=paramgen_dest.go DestinationConfig
 
@@ -7,6 +7,8 @@ import (
 	"fmt"
 
 	sdk "github.com/conduitio/conduit-connector-sdk"
+
+	"github.com/shubhamdixit863/Conduit-Connector-Apache-pulsar/config"
 )
 
 type Destination struct {
@@ -17,7 +19,7 @@ type Destination struct {
 
 type DestinationConfig struct {
 	// Config includes parameters that are the same in the source and destination.
-	Config
+	config.Config
 	// DestinationConfigParam must be either yes or no (defaults to yes).
 	DestinationConfigParam string `validate:"inclusion=yes|no" default:"yes"`
 }

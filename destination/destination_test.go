@@ -1,16 +1,17 @@
-package connectorname_test
+package destination_test
 
 import (
 	"context"
 	"testing"
 
-	connectorname "github.com/conduitio/conduit-connector-connectorname"
 	"github.com/matryer/is"
+
+	apachePulsar "github.com/shubhamdixit863/Conduit-Connector-Apache-pulsar/destination"
 )
 
 func TestTeardown_NoOpen(t *testing.T) {
 	is := is.New(t)
-	con := connectorname.NewDestination()
+	con := apachePulsar.NewDestination()
 	err := con.Teardown(context.Background())
 	is.NoErr(err)
 }

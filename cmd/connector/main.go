@@ -3,9 +3,9 @@ package main
 import (
 	sdk "github.com/conduitio/conduit-connector-sdk"
 
-	connectorname "github.com/conduitio/conduit-connector-connectorname"
+	apachePulsar "github.com/shubhamdixit863/Conduit-Connector-Apache-pulsar"
 )
 
 func main() {
-	sdk.Serve(connectorname.Connector)
+	sdk.Serve(apachePulsar.Connector)
 }

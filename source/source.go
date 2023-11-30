@@ -1,24 +1,29 @@
-package connectorname
+package source
 
 //go:generate paramgen -output=paramgen_src.go SourceConfig
 
 import (
 	"context"
 	"fmt"
+	"github.com/apache/pulsar-client-go/pulsar"
 
 	sdk "github.com/conduitio/conduit-connector-sdk"
+
+	"github.com/shubhamdixit863/Conduit-Connector-Apache-pulsar/config"
 )
 
 type Source struct {
 	sdk.UnimplementedSource
-
+	consumer         pulsar.Consumer
+	pulsarClient     pulsar.Client
 	config           SourceConfig
-	lastPositionRead sdk.Position //nolint:unused // this is just an example
+	readMsg          map[string]pulsar.MessageID // this is used to store the msgs that are read such that we can acknowledge them in later stage
+	lastPositionRead sdk.Position                //nolint:unused // this is just an example
 }
 
 type SourceConfig struct {
 	// Config includes parameters that are the same in the source and destination.
-	Config
+	config.Config
 	// SourceConfigParam is named foo and must be provided by the user.
 	SourceConfigParam string `json:"foo" validate:"required"`
 }
@@ -59,6 +64,24 @@ func (s *Source) Open(ctx context.Context, pos sdk.Position) error {
 	// last record that was successfully processed, Source should therefore
 	// start producing records after this position. The context passed to Open
 	// will be cancelled once the plugin receives a stop signal from Conduit.
+	client, err := pulsar.NewClient(pulsar.ClientOptions{
+		URL:            s.config.ConfigPulsarUrl,
+		Authentication: pulsar.NewAuthenticationToken(s.config.ConfigPulsarJWT),
+	})
+	if err != nil {
+		return err
+	}
+	// create consumer
+	consumer, err := client.Subscribe(pulsar.ConsumerOptions{
+		Topic:            s.config.ConfigPulsarTopic,
+		SubscriptionName: s.config.ConfigPulsarSubscriptionName,
+		Type:             pulsar.Shared,
+	})
+	if err != nil {
+		return err
+	}
+	s.consumer = consumer
+
 	return nil
 }
 
@@ -77,7 +100,13 @@ func (s *Source) Read(ctx context.Context) (sdk.Record, error) {
 	// After Read returns an error the function won't be called again (except if
 	// the error is ErrBackoffRetry, as mentioned above).
 	// Read can be called concurrently with Ack.
-	return sdk.Record{}, nil
+
+	msg, err := s.consumer.Receive(ctx)
+	if err != nil {
+		return sdk.Record{}, err
+	}
+	s.readMsg[msg.Key()] = msg.ID()
+	return sdk.Util.Source.NewRecordCreate(sdk.Position(msg.Key()), nil, sdk.RawData(msg.ID().String()), sdk.RawData(msg.Payload())), nil
 }
 
 func (s *Source) Ack(ctx context.Context, position sdk.Position) error {
@@ -87,6 +116,10 @@ func (s *Source) Ack(ctx context.Context, position sdk.Position) error {
 	// outstanding acks that need to be delivered. When Teardown is called it is
 	// guaranteed there won't be any more calls to Ack.
 	// Ack can be called concurrently with Read.
+	err := s.consumer.AckID(s.readMsg[string(position)])
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -94,5 +127,7 @@ func (s *Source) Teardown(ctx context.Context) error {
 	// Teardown signals to the plugin that there will be no more calls to any
 	// other function. After Teardown returns, the plugin should be ready for a
 	// graceful shutdown.
+	s.consumer.Close()
+	s.pulsarClient.Close()
 	return nil
 }
