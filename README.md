@@ -1,62 +1,56 @@
-# Conduit Connector Template
-This is a template project for building [Conduit](https://conduit.io) connectors in Go. It makes it possible to
-start working on a Conduit connector in a matter of seconds.
+Certainly! Below is a README template for an Apache Pulsar Conduit Connector developed in Go, using the provided template structure.
 
-This template includes the following:
-* Skeleton code for the connector's configuration, source and destination
-* Example unit tests
-* A [Makefile](/Makefile) with commonly used targets
-* A GitHub workflow to [build the code and run the tests](/.github/workflows/build.yml)
-* A GitHub workflow to [run a pre-configured set of linters](/.github/workflows/lint.yml)
-* A GitHub workflow which [automatically creates a release](/.github/workflows/release.yml) once a tag is pushed
-* A [dependabot setup](/.github/dependabot.yml) which checks your dependencies for available updates and 
-[merges minor version upgrades](/.github/workflows/dependabot-auto-merge-go.yml) automatically
-* [Issue](/.github/ISSUE_TEMPLATE) and [PR templates](/.github/pull_request_template.md)
-* A [README template](/README_TEMPLATE.md)
+---
 
-### How to use
-* On this repository's main page, click "Use this template"
-* Enter the information about your repository
-* Once your repository has been generated, clone it
-* After cloning, run `./setup.sh <module name here>` (for example: 
-`./setup.sh github.com/awesome-org/conduit-connector-file`)
-* (Optional) Set the code owners (in the `CODEOWNERS` file)
+# Apache Pulsar Conduit Connector
 
-With that, you're all set up and ready to start working on your connector! As a next step, we recommend that you 
-check out the [Conduit Connector SDK](https://github.com/ConduitIO/conduit-connector-sdk), which is the Go software 
-development kit for implementing a connector for Conduit.
+This project provides a Conduit connector for Apache Pulsar, enabling seamless integration with Conduit's data streaming capabilities. Developed in Go, this connector is designed to work efficiently with Apache Pulsar, a distributed messaging and streaming platform.
 
+## Features
 
-### Repository settings
-Following is a list of repository settings we recommend having.
+- **Pulsar Client Integration**: Fully integrated with the Apache Pulsar client, ensuring reliable and efficient messaging.
+- **Source and Destination Support**: Skeleton code for both source (reading from Pulsar) and destination (writing to Pulsar) are provided.
+- **Configurable**: Easy to configure for different environments and Pulsar clusters.
+- **Unit Tests**: Example unit tests for validating the functionality of the connector.
+- **CI/CD Integration**: GitHub Actions workflows for automated building, testing, and linting.
 
-#### General/Pull Requests
-1. Allow squash merging only.
-2. Always suggest updating pull request branches.
-3. Allow auto-merge.
-4. Automatically delete head branches.
+## Getting Started
 
-#### Branch protection rules
-Protect the default branch using the following rules:
-1. Require a pull request before merging. Require approvals.
-2. Require status checks to pass before merging. Require branches to be up to date before merging.
-3. Specify status checks that are required.
-4. Require conversation resolution before merging.
-5. Do not allow bypassing the above settings.
+### Prerequisites
 
-#### Actions/General
-1. Allow all actions and reusable workflows.
-2. Allow GitHub Actions to create and approve pull requests (if dependabot is used and it's configured to automatically
-merge pull requests).
+- Go (version 1.x)
+- Access to an Apache Pulsar instance
 
-### Specification
-The `spec.go` file provides a programmatic representation of the configuration options.
+### Usage
 
-### Configuration
-This template provides two types of "configs":
-* general configuration (that applies to both, sources and destinations)
-* and source/destination specific configs.
+1. **Use this Template**: Click "Use this template" on the repository's main page.
+2. **Clone the Repository**: After setting up your repository, clone it to your local machine.
+3. **Initial Setup**: Run `./setup.sh <module name>` to initialize the module (e.g., `./setup.sh github.com/your-org/conduit-connector-pulsar`).
+4. **Configuration**: Modify the `config.go` file to set up general and Pulsar-specific configurations.
 
-All are defined in `config.go` and are represented by separate types. General configs should be added to `connectorname.Config`,
-whereas any source or destination specific configs should be added to `connectorname.SourceConfig` and 
-`connectorname.DestinationConfig` respectively.
+### Building and Running
+
+- To build the connector, use `make build`.
+- Run unit tests with `make test`.
+
+## Repository Setup Recommendations
+
+- **Pull Requests**: Use squash merging, enable auto-merge, and set up automatic branch deletion post-merge.
+- **Branch Protection**: Enforce pull requests and approvals, require status checks, and conversation resolution before merging.
+- **Actions**: Enable all actions and allow Actions to manage pull requests, especially for Dependabot configurations.
+
+## Connector Specification
+
+- The `spec.go` file includes the configuration schema for the Pulsar connector.
+
+## Contributing
+
+Contributions are welcome! Please follow the guidelines in the `CONTRIBUTING.md` file.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+This README template provides a concise yet comprehensive guide for anyone looking to use or contribute to the Apache Pulsar Conduit Connector project. It outlines the project's purpose, setup instructions, usage guidelines, and contribution recommendations.
