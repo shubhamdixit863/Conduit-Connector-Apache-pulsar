@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/apache/pulsar-client-go/pulsar"
+	"log"
 
 	sdk "github.com/conduitio/conduit-connector-sdk"
 
@@ -24,8 +25,6 @@ type Source struct {
 type SourceConfig struct {
 	// Config includes parameters that are the same in the source and destination.
 	config.Config
-	// SourceConfigParam is named foo and must be provided by the user.
-	SourceConfigParam string `json:"foo" validate:"required"`
 }
 
 func NewSource() sdk.Source {
@@ -54,6 +53,10 @@ func (s *Source) Configure(ctx context.Context, cfg map[string]string) error {
 	if err != nil {
 		return fmt.Errorf("invalid config: %w", err)
 	}
+	s.config.ConfigPulsarUrl = cfg[config.ConfigPulsarUrl]
+	s.config.ConfigPulsarTopic = cfg[config.ConfigPulsarTopic]
+	s.config.ConfigPulsarSubscriptionName = cfg[config.ConfigPulsarSubscriptionName]
+	s.config.ConfigPulsarJWT = cfg[config.ConfigPulsarJWT]
 	return nil
 }
 
@@ -68,6 +71,7 @@ func (s *Source) Open(ctx context.Context, pos sdk.Position) error {
 		URL:            s.config.ConfigPulsarUrl,
 		Authentication: pulsar.NewAuthenticationToken(s.config.ConfigPulsarJWT),
 	})
+	s.pulsarClient = client
 	if err != nil {
 		return err
 	}
@@ -86,6 +90,8 @@ func (s *Source) Open(ctx context.Context, pos sdk.Position) error {
 }
 
 func (s *Source) Read(ctx context.Context) (sdk.Record, error) {
+	log.Println("read calledd-------------")
+
 	// Read returns a new Record and is supposed to block until there is either
 	// a new record or the context gets cancelled. It can also return the error
 	// ErrBackoffRetry to signal to the SDK it should call Read again with a
@@ -100,13 +106,25 @@ func (s *Source) Read(ctx context.Context) (sdk.Record, error) {
 	// After Read returns an error the function won't be called again (except if
 	// the error is ErrBackoffRetry, as mentioned above).
 	// Read can be called concurrently with Ack.
-
-	msg, err := s.consumer.Receive(ctx)
-	if err != nil {
+	msgChan := make(chan pulsar.Message)
+	errChan := make(chan error)
+	go func() {
+		msg, err := s.consumer.Receive(ctx)
+		if err != nil {
+			errChan <- err
+		}
+		msgChan <- msg
+	}()
+	select {
+	case msg := <-msgChan:
+		s.readMsg[msg.Key()] = msg.ID()
+		return sdk.Util.Source.NewRecordCreate(sdk.Position(msg.Key()), nil, sdk.RawData(msg.ID().String()), sdk.RawData(msg.Payload())), nil
+	case err := <-errChan:
 		return sdk.Record{}, err
+	case <-ctx.Done():
+		return sdk.Record{}, nil // if the context is cancelled or timeout return
+
 	}
-	s.readMsg[msg.Key()] = msg.ID()
-	return sdk.Util.Source.NewRecordCreate(sdk.Position(msg.Key()), nil, sdk.RawData(msg.ID().String()), sdk.RawData(msg.Payload())), nil
 }
 
 func (s *Source) Ack(ctx context.Context, position sdk.Position) error {

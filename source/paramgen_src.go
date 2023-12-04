@@ -17,6 +17,14 @@ func (SourceConfig) Parameters() map[string]sdk.Parameter {
 				sdk.ValidationRequired{},
 			},
 		},
+		"config_pulsar_subscription_name": {
+			Default:     "",
+			Description: "",
+			Type:        sdk.ParameterTypeString,
+			Validations: []sdk.Validation{
+				sdk.ValidationRequired{},
+			},
+		},
 		"config_pulsar_topic": {
 			Default:     "",
 			Description: "",
@@ -27,23 +35,7 @@ func (SourceConfig) Parameters() map[string]sdk.Parameter {
 		},
 		"config_pulsar_url": {
 			Default:     "",
-			Description: "",
-			Type:        sdk.ParameterTypeString,
-			Validations: []sdk.Validation{
-				sdk.ValidationRequired{},
-			},
-		},
-		"foo": {
-			Default:     "",
-			Description: "foo is named foo and must be provided by the user.",
-			Type:        sdk.ParameterTypeString,
-			Validations: []sdk.Validation{
-				sdk.ValidationRequired{},
-			},
-		},
-		"global_config_param_name": {
-			Default:     "",
-			Description: "global_config_param_name is named global_config_param_name and needs to be provided by the user.",
+			Description: "GlobalConfigParam is named global_config_param_name and needs to be provided by the user.",
 			Type:        sdk.ParameterTypeString,
 			Validations: []sdk.Validation{
 				sdk.ValidationRequired{},
