@@ -15,7 +15,7 @@ This project provides a Conduit connector for Apache Pulsar, enabling seamless i
 
 ### Prerequisites
 
-- Go (version 1.x)
+- Go (version 1.21)
 - Access to an Apache Pulsar instance
 
 ### Usage
