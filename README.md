@@ -1,6 +1,3 @@
-Certainly! Below is a README template for an Apache Pulsar Conduit Connector developed in Go, using the provided template structure.
-
----
 
 # Apache Pulsar Conduit Connector
 
@@ -51,6 +48,4 @@ Contributions are welcome! Please follow the guidelines in the `CONTRIBUTING.md`
 
 This project is licensed under the [MIT License](LICENSE).
 
----
 
-This README template provides a concise yet comprehensive guide for anyone looking to use or contribute to the Apache Pulsar Conduit Connector project. It outlines the project's purpose, setup instructions, usage guidelines, and contribution recommendations.
